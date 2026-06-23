@@ -396,7 +396,30 @@ section{padding:120px 48px;position:relative}
   background:var(--bg);padding:48px 32px;
   display:flex;flex-direction:column;align-items:center;gap:16px;
   cursor:none;transition:all .4s;position:relative;overflow:hidden;
+  border:none;font-family:inherit;color:inherit;width:100%;
 }
+.contact-option:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.terminal-submit:focus-visible,
+.terminal-input:focus-visible,
+.nav-links a:focus-visible,
+.nav-cta:focus-visible{
+  outline:2px solid var(--blue);outline-offset:3px;
+}
+.terminal-field-error{
+  font-size:11px;color:#FF6B6B;letter-spacing:.05em;
+  min-height:0;margin:-12px 0 16px;opacity:0;transition:opacity .2s;
+}
+.terminal-field-error.visible{opacity:1;min-height:16px}
+.terminal-status{
+  font-size:11px;letter-spacing:.1em;margin-top:16px;text-align:center;
+  min-height:16px;color:rgba(255,255,255,0.5);
+}
+.terminal-status.error{color:#FF6B6B}
+.terminal-status.success{color:#00FF88}
+.terminal-input.invalid{caret-color:#FF6B6B}
+.terminal-submit[disabled]{opacity:.5;cursor:not-allowed}
 .contact-option::before{
   content:'';position:absolute;inset:0;
   background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(123,97,255,0.05));
@@ -867,42 +890,48 @@ footer{
     Ready to remove the bottleneck? Let's map out your autonomous business infrastructure.
   </p>
   <div class="contact-grid">
-    <div class="contact-option reveal" onclick="window.open('mailto:hello@nextgenseek.com')">
+    <button type="button" class="contact-option reveal" onclick="selectInquiry('Strategy Call')">
       <div class="contact-icon">📞</div>
       <div class="contact-title">STRATEGY CALL</div>
       <div class="contact-desc">30-MIN · FREE</div>
-    </div>
-    <div class="contact-option reveal" onclick="window.open('mailto:hello@nextgenseek.com')">
+    </button>
+    <button type="button" class="contact-option reveal" onclick="selectInquiry('Start Project')">
       <div class="contact-icon">🚀</div>
       <div class="contact-title">START PROJECT</div>
       <div class="contact-desc">FULL BUILD · 48H KICKOFF</div>
-    </div>
-    <div class="contact-option reveal" onclick="document.getElementById('chapter-showcase').scrollIntoView({behavior:'smooth'})">
+    </button>
+    <button type="button" class="contact-option reveal" onclick="document.getElementById('chapter-showcase').scrollIntoView({behavior:'smooth'})">
       <div class="contact-icon">🎬</div>
       <div class="contact-title">WATCH SHOWREEL</div>
       <div class="contact-desc">AI MOTION · FULL PORTFOLIO</div>
-    </div>
-    <div class="contact-option reveal" onclick="window.open('mailto:hello@nextgenseek.com')">
+    </button>
+    <button type="button" class="contact-option reveal" onclick="selectInquiry('Get Proposal')">
       <div class="contact-icon">📋</div>
       <div class="contact-title">GET PROPOSAL</div>
       <div class="contact-desc">CUSTOM · 24H TURNAROUND</div>
-    </div>
+    </button>
   </div>
-  <div class="terminal-form reveal" role="form" aria-label="Contact form">
+  <form class="terminal-form reveal" id="contact-form" aria-label="Contact form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+    <input type="hidden" name="_subject" id="t-subject" value="New inquiry from NextGenSeek site">
+    <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
     <div class="terminal-line">
       <span class="terminal-prompt">Full Name</span>
-      <input class="terminal-input" type="text" id="t-name" placeholder="Your name" aria-label="Your name">
+      <input class="terminal-input" type="text" name="name" id="t-name" placeholder="Your name" aria-label="Your name" required>
     </div>
+    <div class="terminal-field-error" id="t-name-error" role="alert"></div>
     <div class="terminal-line">
       <span class="terminal-prompt">Email</span>
-      <input class="terminal-input" type="email" id="t-email" placeholder="Your email" aria-label="Your email">
+      <input class="terminal-input" type="email" name="email" id="t-email" placeholder="Your email" aria-label="Your email" required>
     </div>
+    <div class="terminal-field-error" id="t-email-error" role="alert"></div>
     <div class="terminal-line" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
       <span class="terminal-prompt">Message</span>
-      <input class="terminal-input" type="text" id="t-project" placeholder="Describe your project or goals" aria-label="Project description">
+      <input class="terminal-input" type="text" name="message" id="t-project" placeholder="Describe your project or goals" aria-label="Project description" required>
     </div>
-    <button class="terminal-submit" onclick="handleSubmit()" aria-label="Send message">INITIALIZE SYSTEM →</button>
-  </div>
+    <div class="terminal-field-error" id="t-project-error" role="alert"></div>
+    <button type="submit" class="terminal-submit" id="terminal-submit-btn" aria-label="Send message">INITIALIZE SYSTEM →</button>
+    <div class="terminal-status" id="terminal-status" role="status" aria-live="polite"></div>
+  </form>
 </section>
 
 <!-- FOOTER -->
@@ -1097,24 +1126,82 @@ const counterObs=new IntersectionObserver(entries=>{
 },{threshold:.4});
 document.querySelectorAll('.metric-card').forEach(el=>counterObs.observe(el));
 
-// FORM SUBMIT
-function handleSubmit(){
-  const n=document.getElementById('t-name').value;
-  const em=document.getElementById('t-email').value;
-  const p=document.getElementById('t-project').value;
-  if(!n||!em){alert('Please fill in your name and email.');return;}
-  const btn=document.querySelector('.terminal-submit');
-  btn.textContent='TRANSMISSION SENT ✓';
-  btn.style.background='linear-gradient(135deg,#0a3a1a,#0d4a20)';
-  btn.style.color='#00FF88';
-  setTimeout(()=>{
-    btn.textContent='INITIALIZE SYSTEM →';
-    btn.style.background='';btn.style.color='';
-    document.getElementById('t-name').value='';
-    document.getElementById('t-email').value='';
-    document.getElementById('t-project').value='';
-  },3000);
+// CONTACT OPTION SELECTION -> sets subject + scrolls to / focuses form
+function selectInquiry(label){
+  document.getElementById('t-subject').value='NextGenSeek inquiry: '+label;
+  const form=document.getElementById('contact-form');
+  form.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>document.getElementById('t-name').focus(),500);
 }
+
+// CONTACT FORM — real submission via Formspree
+(function(){
+  const form=document.getElementById('contact-form');
+  const statusEl=document.getElementById('terminal-status');
+  const submitBtn=document.getElementById('terminal-submit-btn');
+  const fields=[
+    {input:'t-name',error:'t-name-error',validate:v=>v.trim().length>0,msg:'Please enter your name.'},
+    {input:'t-email',error:'t-email-error',validate:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),msg:'Please enter a valid email.'},
+    {input:'t-project',error:'t-project-error',validate:v=>v.trim().length>0,msg:'Please describe your project or goals.'}
+  ];
+
+  function validateField(f){
+    const inputEl=document.getElementById(f.input);
+    const errorEl=document.getElementById(f.error);
+    const ok=f.validate(inputEl.value);
+    inputEl.classList.toggle('invalid',!ok);
+    errorEl.textContent=ok?'':f.msg;
+    errorEl.classList.toggle('visible',!ok);
+    return ok;
+  }
+
+  fields.forEach(f=>{
+    document.getElementById(f.input).addEventListener('blur',()=>validateField(f));
+  });
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const allValid=fields.map(validateField).every(Boolean);
+    if(!allValid){
+      statusEl.textContent='Please fix the highlighted fields.';
+      statusEl.className='terminal-status error';
+      return;
+    }
+    if(form.action.includes('YOUR_FORM_ID')){
+      statusEl.textContent='Form not yet connected — add your Formspree endpoint.';
+      statusEl.className='terminal-status error';
+      return;
+    }
+    submitBtn.disabled=true;
+    submitBtn.textContent='TRANSMITTING…';
+    statusEl.textContent='';
+    statusEl.className='terminal-status';
+    try{
+      const res=await fetch(form.action,{
+        method:'POST',
+        headers:{'Accept':'application/json'},
+        body:new FormData(form)
+      });
+      if(res.ok){
+        submitBtn.textContent='TRANSMISSION SENT ✓';
+        statusEl.textContent="Thanks — we'll be in touch shortly.";
+        statusEl.className='terminal-status success';
+        form.reset();
+        setTimeout(()=>{
+          submitBtn.textContent='INITIALIZE SYSTEM →';
+          submitBtn.disabled=false;
+        },3000);
+      } else {
+        throw new Error('Submission failed');
+      }
+    } catch(err){
+      submitBtn.textContent='INITIALIZE SYSTEM →';
+      submitBtn.disabled=false;
+      statusEl.textContent='Something went wrong — please email hello@nextgenseek.com directly.';
+      statusEl.className='terminal-status error';
+    }
+  });
+})();
 </script>
 </body>
 </html>
